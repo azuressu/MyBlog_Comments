@@ -1,7 +1,9 @@
 package com.example.post2.security;
 
 import com.example.post2.dto.LoginRequestDto;
+import com.example.post2.entity.MyBlogErrorCode;
 import com.example.post2.entity.UserRoleEnum;
+import com.example.post2.exception.MyBlogException;
 import com.example.post2.jwt.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -41,7 +43,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             );
         } catch (IOException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e.getMessage());
+//            throw new RuntimeException(e.getMessage());
+            throw new MyBlogException(MyBlogErrorCode.NOT_FOUND_USER, null);
         }
     } // attemptAuthentication
 
@@ -60,7 +63,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
         response.setStatus(400);
-        status(400, "회원을 찾을 수 없습니다", response);
+//        status(400, "회원을 찾을 수 없습니다", response);
+        throw new MyBlogException(MyBlogErrorCode.NOT_FOUND_USER, null);
     }
 
     // 상태 코드 반환하기
