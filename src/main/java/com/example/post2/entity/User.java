@@ -19,8 +19,6 @@ public class User {
 
     // 중복 안됨
     @Id
-    @Size(min = 4, max = 10)
-    @Pattern(regexp = "^[a-z0-9]*$")
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 

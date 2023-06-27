@@ -48,9 +48,7 @@ public class PostService {
 
     public PostResponseDto getOnePost(Long id) {
         Post post = findPost(id);
-
         PostResponseDto postResponseDto = new PostResponseDto(post);
-
         return postResponseDto;
     }
 
@@ -82,7 +80,6 @@ public class PostService {
         } else {
             return null;
         }
-
     }
 
     // 해당 포스트를 찾아서 반환

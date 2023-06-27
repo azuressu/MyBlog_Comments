@@ -37,33 +37,28 @@ public class UserService {
         log.info(username);
         String inputpassword = requestDto.getPassword();
 
-        if (Pattern.matches("^[A-Za-z\\d@$!%*?&]{8,15}$", inputpassword)) { // 특수문자도 추가
-            String password = passwordEncoder.encode(requestDto.getPassword());
+        String password = passwordEncoder.encode(requestDto.getPassword());
 
-            // 회원 중복 확인
-            Optional<User> checkUsername = userRepository.findByUsername(username);
-            if (checkUsername.isPresent()) {
-                throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
-            }
-
-            // 사용자 ROLE 확인 - isAdmin에서 문제가있는듯하다 ..
-            UserRoleEnum role = UserRoleEnum.USER;
-            if (!requestDto.getAdminToken().isBlank()) {
-                if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
-                    throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
-                }
-                // 수동으로 admin의 값을 true로 설정해줌
-                requestDto.setAdmin(true);
-                role = UserRoleEnum.ADMIN;
-            }
-
-            // 사용자 등록
-            User user = new User(username, password, role);
-            userRepository.save(user);
-
-        } else {
-            System.out.println("비밀번호 패턴에 맞지 않습니다.");
+        // 회원 중복 확인
+        Optional<User> checkUsername = userRepository.findByUsername(username);
+        if (checkUsername.isPresent()) {
+            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
         }
+
+        // 사용자 ROLE 확인 - isAdmin에서 문제가있는듯하다 ..
+        UserRoleEnum role = UserRoleEnum.USER;
+        if (!requestDto.getAdminToken().isBlank()) {
+            if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
+                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
+            }
+            // 수동으로 admin의 값을 true로 설정해줌
+            requestDto.setAdmin(true);
+            role = UserRoleEnum.ADMIN;
+        }
+
+        // 사용자 등록
+        User user = new User(username, password, role);
+        userRepository.save(user);
 
         StatusResponseDto statusResponseDto = new StatusResponseDto();
         statusResponseDto.setMsg("회원가입 성공");
