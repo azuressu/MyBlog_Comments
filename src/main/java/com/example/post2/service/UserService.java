@@ -37,7 +37,7 @@ public class UserService {
         log.info(username);
         String inputpassword = requestDto.getPassword();
 
-        if (Pattern.matches("^[a-zA-Z0-9]*$", inputpassword) && (inputpassword.length()>=8 && inputpassword.length()<=15)) {
+        if (Pattern.matches("^[A-Za-z\\d@$!%*?&]{8,15}$", inputpassword)) { // 특수문자도 추가
             String password = passwordEncoder.encode(requestDto.getPassword());
 
             // 회원 중복 확인
@@ -52,6 +52,7 @@ public class UserService {
                 if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
                     throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
                 }
+                // 수동으로 admin의 값을 true로 설정해줌
                 requestDto.setAdmin(true);
                 role = UserRoleEnum.ADMIN;
             }

@@ -57,8 +57,9 @@ public class PostService {
     @Transactional
     public PostResponseDto updatePost(Long id, PostRequestDto requestDto, UserDetailsImpl userDetails) {
         Post post = findPost(id);
-
-        if (post.getUser().getUsername().equals(userDetails.getUsername())) {
+        // 해당 게시글을 작성한 작성자 이거나, 권한이 ADMIN인 경우는 삭제 가능
+        if (post.getUser().getUsername().equals(userDetails.getUsername())
+                && userDetails.getUser().getRole().getAuthority().equals("ADMIN")) {
             post.update(requestDto);
             PostResponseDto postResponseDto = new PostResponseDto(post);
             return postResponseDto;
@@ -69,8 +70,9 @@ public class PostService {
 
     public StatusResponseDto deletePost(Long id, UserDetailsImpl userDetails) {
         Post post = findPost(id);
-
-        if (userDetails.getUsername().equals(post.getUser().getUsername())) {
+        // 해당 게시글을 작성한 작성자 이거나, 권한이 ADMIN인 경우는 삭제 가능
+        if (userDetails.getUsername().equals(post.getUser().getUsername())
+                && userDetails.getUser().getRole().getAuthority().equals("ADMIN")) {
             postRepository.delete(post);
 
             StatusResponseDto statusResponseDto = new StatusResponseDto();
