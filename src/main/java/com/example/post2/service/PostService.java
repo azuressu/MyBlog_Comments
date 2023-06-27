@@ -1,9 +1,11 @@
 package com.example.post2.service;
 
+import com.example.post2.dto.CommentResponseDto;
 import com.example.post2.dto.PostRequestDto;
 import com.example.post2.dto.PostResponseDto;
 import com.example.post2.dto.StatusResponseDto;
 import com.example.post2.entity.Post;
+import com.example.post2.repository.CommentRepository;
 import com.example.post2.repository.PostRepository;
 import com.example.post2.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +21,12 @@ public class PostService {
     private final PostRepository postRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository) {
+    private final CommentRepository commentRepository;
+
+    @Autowired
+    public PostService(PostRepository postRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
     }
 
     public PostResponseDto createPost(PostRequestDto requestDto, UserDetailsImpl userDetails) {
@@ -36,6 +42,7 @@ public class PostService {
     }
 
     public List<PostResponseDto> getPosts() {
+        commentRepository.findAllByOrderByCreateTimeDesc().stream().map(CommentResponseDto::new).toList();
         return postRepository.findAllByOrderByCreateTimeDesc().stream().map(PostResponseDto::new).toList();
     }
 

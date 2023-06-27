@@ -3,10 +3,12 @@ package com.example.post2.dto;
 import com.example.post2.entity.Comment;
 import com.example.post2.service.CommentService;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor
 public class CommentResponseDto {
 
     private Long id;

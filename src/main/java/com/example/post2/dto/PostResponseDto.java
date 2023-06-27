@@ -17,7 +17,7 @@ public class PostResponseDto {
     private String title;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
-    private List<Comment> commentList;
+    private List<CommentResponseDto> commentList = new ArrayList<>();
 
     public PostResponseDto(Post post) {
         this.id = post.getId();
@@ -27,8 +27,10 @@ public class PostResponseDto {
         this.createTime = post.getCreateTime();
         this.modifyTime = post.getModifyTime();
         // post에 저장된 commentList Comment들을 하나씩 저장해준다
-        for (Comment comment:post.getCommentList()) {
-            this.commentList.add(comment);
+        if (post.getCommentList().size()>0) {
+            for (Comment comment:post.getCommentList()) {
+                this.commentList.add(new CommentResponseDto(comment));
+            }
         }
     }
 }
