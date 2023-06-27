@@ -24,17 +24,17 @@ public class CommentController {
     // 댓글 작성
     @PostMapping("/post/{id}/comment")
     public CommentResponseDto createComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return commentService.createComment(id, requestDto, userDetails);
+        return commentService.createComment(id, requestDto, userDetails.getUser());
     }
 
     // 댓글 수정
     @PutMapping("/post/{id}/comment/{commentid}")
     public CommentResponseDto updateComment(@PathVariable Long id, @PathVariable Long commentid, @RequestBody CommentRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return commentService.updateCommnet(id, commentid, requestDto, userDetails);
+        return commentService.updateCommnet(id, commentid, requestDto, userDetails.getUser());
     }
 
     @DeleteMapping("/post/{id}/comment/{commentid}")
     public StatusResponseDto deleteComment(@PathVariable Long id, @PathVariable Long commentid, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return commentService.deleteComment(id, commentid, userDetails);
+        return commentService.deleteComment(id, commentid, userDetails.getUser());
     }
 }

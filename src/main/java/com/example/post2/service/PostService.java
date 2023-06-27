@@ -5,6 +5,7 @@ import com.example.post2.dto.PostRequestDto;
 import com.example.post2.dto.PostResponseDto;
 import com.example.post2.dto.StatusResponseDto;
 import com.example.post2.entity.Post;
+import com.example.post2.entity.User;
 import com.example.post2.repository.CommentRepository;
 import com.example.post2.repository.PostRepository;
 import com.example.post2.security.UserDetailsImpl;
@@ -29,9 +30,9 @@ public class PostService {
         this.commentRepository = commentRepository;
     }
 
-    public PostResponseDto createPost(PostRequestDto requestDto, UserDetailsImpl userDetails) {
+    public PostResponseDto createPost(PostRequestDto requestDto, User user) {
         Post post = new Post();
-        post.setUser(userDetails.getUser());
+        post.setUser(user);
         post.setTitle(requestDto.getTitle());
         post.setContents(requestDto.getContents());
 
@@ -53,11 +54,11 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, UserDetailsImpl userDetails) {
+    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
         Post post = findPost(id);
         // 해당 게시글을 작성한 작성자 이거나, 권한이 ADMIN인 경우는 삭제 가능
-        if (post.getUser().getUsername().equals(userDetails.getUsername())
-                && userDetails.getUser().getRole().getAuthority().equals("ADMIN")) {
+        if (post.getUser().getUsername().equals(user.getUsername())
+                || user.getRole().getAuthority().equals("ADMIN")) {
             post.update(requestDto);
             PostResponseDto postResponseDto = new PostResponseDto(post);
             return postResponseDto;
@@ -66,11 +67,11 @@ public class PostService {
         }
     }
 
-    public StatusResponseDto deletePost(Long id, UserDetailsImpl userDetails) {
+    public StatusResponseDto deletePost(Long id, User user) {
         Post post = findPost(id);
         // 해당 게시글을 작성한 작성자 이거나, 권한이 ADMIN인 경우는 삭제 가능
-        if (userDetails.getUsername().equals(post.getUser().getUsername())
-                && userDetails.getUser().getRole().getAuthority().equals("ADMIN")) {
+        if (user.getUsername().equals(post.getUser().getUsername())
+                || user.getRole().getAuthority().equals("ADMIN")) {
             postRepository.delete(post);
 
             StatusResponseDto statusResponseDto = new StatusResponseDto();

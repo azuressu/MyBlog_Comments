@@ -20,11 +20,11 @@ public class Comment extends Timestamped {
     private String commentcontents;
 
     @ManyToOne
-    @JoinColumn(name = "username")
+    @JoinColumn(name = "username", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     public Comment(CommentRequestDto commentRequestDto) {

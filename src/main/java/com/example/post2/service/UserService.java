@@ -2,17 +2,19 @@ package com.example.post2.service;
 
 import com.example.post2.dto.SignupRequestDto;
 import com.example.post2.dto.StatusResponseDto;
+import com.example.post2.entity.MyBlogErrorCode;
 import com.example.post2.entity.User;
 import com.example.post2.entity.UserRoleEnum;
+import com.example.post2.exception.MyBlogException;
 import com.example.post2.jwt.JwtUtil;
 import com.example.post2.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -32,24 +34,23 @@ public class UserService {
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
-    public StatusResponseDto signup(SignupRequestDto requestDto) {
+    public StatusResponseDto signup(HttpServletResponse res, SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         log.info(username);
-        String inputpassword = requestDto.getPassword();
 
         String password = passwordEncoder.encode(requestDto.getPassword());
 
         // 회원 중복 확인
         Optional<User> checkUsername = userRepository.findByUsername(username);
         if (checkUsername.isPresent()) {
-            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
+            throw new MyBlogException(MyBlogErrorCode.IN_USED_USERNAME, null);
         }
 
-        // 사용자 ROLE 확인 - isAdmin에서 문제가있는듯하다 ..
+        // 사용자 ROLE 확인
         UserRoleEnum role = UserRoleEnum.USER;
         if (!requestDto.getAdminToken().isBlank()) {
             if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
-                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
+                throw new MyBlogException(MyBlogErrorCode.WRONG_ADMIN_TOKEN, null);
             }
             // 수동으로 admin의 값을 true로 설정해줌
             requestDto.setAdmin(true);
@@ -65,6 +66,5 @@ public class UserService {
         statusResponseDto.setStatusCode(200);
 
         return statusResponseDto;
-
     }
 }

@@ -1,6 +1,5 @@
 package com.example.post2.dto;
 
-import com.example.post2.entity.Comment;
 import com.example.post2.entity.Post;
 import lombok.Getter;
 
@@ -26,10 +25,11 @@ public class PostResponseDto {
         this.contents = post.getContents();
         this.createTime = post.getCreateTime();
         this.modifyTime = post.getModifyTime();
+
         // post에 저장된 commentList Comment들을 하나씩 저장해준다
-        if (post.getCommentList().size()>0) {
-            for (Comment comment:post.getCommentList()) {
-                this.commentList.add(new CommentResponseDto(comment));
+        if (post.getCommentList().size() > 0) {
+            for (int i=post.getCommentList().size()-1; i>=0; i--) {
+                this.commentList.add(new CommentResponseDto(post.getCommentList().get(i)));
             }
         }
     }

@@ -5,6 +5,7 @@ import com.example.post2.dto.CommentResponseDto;
 import com.example.post2.dto.StatusResponseDto;
 import com.example.post2.entity.Comment;
 import com.example.post2.entity.Post;
+import com.example.post2.entity.User;
 import com.example.post2.repository.CommentRepository;
 import com.example.post2.repository.PostRepository;
 import com.example.post2.security.UserDetailsImpl;
@@ -28,12 +29,12 @@ public class CommentService {
     }
 
     // 댓글 작성
-    public CommentResponseDto createComment(Long id, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
+    public CommentResponseDto createComment(Long id, CommentRequestDto requestDto, User user) {
         Post post = findPost(id);
 
         // 작성한 댓글
         Comment comment = new Comment(requestDto);
-        comment.setUser(userDetails.getUser());
+        comment.setUser(user);
         comment.setPost(post);
         commentRepository.save(comment);
 
@@ -45,14 +46,14 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto updateCommnet(Long id, Long commentid, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
+    public CommentResponseDto updateCommnet(Long id, Long commentid, CommentRequestDto requestDto, User user) {
         // 해당 게시글이 있는지 확인
         findPost(id);
         // 해당 댓글이 있는지 확인
         Comment comment = findComment(commentid);
         // 해당 댓글을 작성한 작성자 이거나, 권한이 ADMIN인 경우 댓글 수정 가능
-        if (comment.getUser().getUsername().equals(userDetails.getUsername())
-                && userDetails.getUser().getRole().getAuthority().equals("ADMIN")) {
+        if (comment.getUser().getUsername().equals(user.getUsername())
+                || user.getRole().getAuthority().equals("ADMIN")) {
             // 있으면 댓글 내용 업데이트
             comment.update(requestDto);
             // ResponseDto에 내용 담아서 반환
@@ -64,14 +65,14 @@ public class CommentService {
 
     }
 
-    public StatusResponseDto deleteComment(Long id, Long commentid, UserDetailsImpl userDetails) {
+    public StatusResponseDto deleteComment(Long id, Long commentid, User user) {
         // 해당 게시글이 있는지 확인
         findPost(id);
         // 해당 댓글이 있는지 확인
         Comment comment = findComment(commentid);
         // 해당 댓글을 작성한 작성자 이거나, 권한이 ADMIN인 경우 댓글 삭제 가능
-        if (comment.getUser().getUsername().equals(userDetails.getUsername())
-                && userDetails.getUser().getRole().getAuthority().equals("ADMIN")) {
+        if (comment.getUser().getUsername().equals(user.getUsername())
+                || user.getRole().getAuthority().equals("ADMIN")) {
             // 있으면 댓글 삭제
             commentRepository.delete(comment);
             // 상태 ResponseDto에 담아서 반환

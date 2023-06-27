@@ -24,7 +24,7 @@ public class PostController {
     // 게시글 작성
     @PostMapping("/post")
     public PostResponseDto createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.createPost(requestDto, userDetails);
+        return postService.createPost(requestDto, userDetails.getUser());
     }
 
     // 전체 게시글 조회 (Token 상관 없음 - WebSecurityConfig에서 설정)
@@ -41,12 +41,12 @@ public class PostController {
 
     @PutMapping("/post/{id}")
     public PostResponseDto updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.updatePost(id, requestDto, userDetails);
+        return postService.updatePost(id, requestDto, userDetails.getUser());
     }
 
     @DeleteMapping("/post/{id}")
     public StatusResponseDto deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return postService.deletePost(id, userDetails);
+        return postService.deletePost(id, userDetails.getUser());
     }
 
 }
