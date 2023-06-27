@@ -1,9 +1,12 @@
 package com.example.post2.dto;
 
+import com.example.post2.entity.Comment;
 import com.example.post2.entity.Post;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class PostResponseDto {
@@ -14,6 +17,7 @@ public class PostResponseDto {
     private String title;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
+    private List<Comment> commentList;
 
     public PostResponseDto(Post post) {
         this.id = post.getId();
@@ -22,5 +26,9 @@ public class PostResponseDto {
         this.contents = post.getContents();
         this.createTime = post.getCreateTime();
         this.modifyTime = post.getModifyTime();
+        // post에 저장된 commentList Comment들을 하나씩 저장해준다
+        for (Comment comment:post.getCommentList()) {
+            this.commentList.add(comment);
+        }
     }
 }

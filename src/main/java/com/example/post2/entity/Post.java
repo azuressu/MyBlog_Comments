@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -22,8 +25,11 @@ public class Post extends Timestamped{
     private String contents;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "username")
     private User user;
+
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
+    private List<Comment> commentList = new ArrayList<>();
 
     public Post(PostRequestDto requestDto) {
         this.title = requestDto.getTitle();
@@ -34,5 +40,10 @@ public class Post extends Timestamped{
         // 제목, 작성 내용을 수정
         this.title = requestDto.getTitle();
         this.contents = requestDto.getContents();
+    }
+
+    public void addComment(Comment comment) {
+        this.commentList.add(comment);
+        comment.setPost(this);
     }
 }
