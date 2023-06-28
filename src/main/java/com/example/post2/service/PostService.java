@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -48,14 +49,20 @@ public class PostService {
     }
 
     public List<PostResponseDto> getPosts() {
-        commentRepository.findAllByOrderByCreateTimeDesc().stream().map(CommentResponseDto::new).toList();
-        return postRepository.findAllByOrderByCreateTimeDesc().stream().map(PostResponseDto::new).toList();
+        List<PostResponseDto> postResponseDtoList = new ArrayList<>();
+        List<Post> postList = postRepository.findAllByOrderByCreateTimeDesc();
+
+        for (Post post: postList) {
+            post.setCommentList(commentRepository.findAllByPostIdOrderByCreateTimeDesc(post.getId()));
+            postResponseDtoList.add(new PostResponseDto(post));
+        }
+        return postResponseDtoList;
     }
 
     public PostResponseDto getOnePost(Long id) {
         Post post = findPost(id);
-        PostResponseDto postResponseDto = new PostResponseDto(post);
-        return postResponseDto;
+        post.setCommentList(commentRepository.findAllByPostIdOrderByCreateTimeDesc(post.getId()));
+        return new PostResponseDto(post);
     }
 
     @Transactional

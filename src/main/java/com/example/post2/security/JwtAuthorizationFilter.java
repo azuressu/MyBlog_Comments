@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -33,7 +34,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
         String tokenValue = jwtUtil.getJwtFromHeader(req); // 상태코드 반환을 위해서 res 추가
 
-        if (StringUtils.hasText(tokenValue)) {
+        if (StringUtils.hasText(tokenValue) && !req.getMethod().equals("GET")) {
 
             if (!jwtUtil.validateToken(tokenValue)) {
                 log.error("Token Error: HttpServletRequest Header의 토큰이 유효하지 않습니다.");
@@ -49,10 +50,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 log.error(e.getMessage());
                 return;
             }
-        } /*if*/  else {
-            status(400, "유효하지 않은 토큰입니다", res);
-            log.error("Token Error: HttpServletRequest Header에 토큰이 존재하지 않습니다.");
-            return;
         }
 
         filterChain.doFilter(req, res);
