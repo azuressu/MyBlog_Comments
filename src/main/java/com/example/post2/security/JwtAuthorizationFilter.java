@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @Slf4j(topic = "JWT 검증 및 인가")
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
@@ -30,12 +31,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
-        String tokenValue = jwtUtil.getJwtFromHeader(req);
+        String tokenValue = jwtUtil.getJwtFromHeader(req); // 상태코드 반환을 위해서 res 추가
 
         if (StringUtils.hasText(tokenValue)) {
 
-            if (!jwtUtil.validateToken(tokenValue, res)) {
-                log.error("Token Error");
+            if (!jwtUtil.validateToken(tokenValue)) {
+                log.error("Token Error: HttpServletRequest Header의 토큰이 유효하지 않습니다.");
+                status(400, "유효하지 않은 토큰입니다", res);
                 return;
             }
 
@@ -47,7 +49,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 log.error(e.getMessage());
                 return;
             }
-        } // if
+        } /*if*/  else {
+            status(400, "유효하지 않은 토큰입니다", res);
+            log.error("Token Error: HttpServletRequest Header에 토큰이 존재하지 않습니다.");
+            return;
+        }
 
         filterChain.doFilter(req, res);
     } // doFilterInternal
@@ -69,5 +75,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     } // createAuthentication()
 
+    // 상태 코드 반환하기
+    public void status(int statusCode, String message, HttpServletResponse response) throws IOException {
+        // 응답 데이터를 JSON 형식으로 생성
+        String jsonResponse = "{\"statusCode\": " + statusCode + ", \"message\": \"" + message + "\"}";
+
+        // Content-Type 및 문자 인코딩 설정
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        // PrintWriter를 사용하여 응답 데이터 전송
+        PrintWriter writer = response.getWriter();
+        writer.write(jsonResponse);
+        writer.flush();
+    }
 
 }

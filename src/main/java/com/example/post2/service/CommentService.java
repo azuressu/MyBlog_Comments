@@ -11,12 +11,14 @@ import com.example.post2.repository.PostRepository;
 import com.example.post2.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 
+@Slf4j
 @Service
 public class CommentService {
 
@@ -110,7 +112,7 @@ public class CommentService {
     // 상태 코드 반환하기
     public void status(int statusCode, String message, HttpServletResponse response) throws IOException {
         // 응답 데이터를 JSON 형식으로 생성
-        String jsonResponse = "{\"status\": " + statusCode + ", \"message\": \"" + message + "\"}";
+        String jsonResponse = "{\"statusCode\": " + statusCode + ", \"message\": \"" + message + "\"}";
 
         // Content-Type 및 문자 인코딩 설정
         response.setContentType("application/json");

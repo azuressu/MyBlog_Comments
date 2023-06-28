@@ -68,17 +68,21 @@ public class JwtUtil {
     }
 
     // Token 검증
-    public boolean validateToken(String token, HttpServletResponse response) {
+    public boolean validateToken(String token){
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException | SignatureException e) {
+            log.error("Token 검증 실패");
             log.error("Invalid JWT signature, 유효하지 않은 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
+            log.error("Token 검증 실패");
             log.error("Expired JWT token, 만료된 JWT 토큰입니다.");
         } catch (UnsupportedJwtException e) {
+            log.error("Token 검증 실패");
             log.error("Unsupported JWT token, 지원되지 않은 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
+            log.error("Token 검증 실패");
             log.error("JWT claims is empty, 잘못된 JWT 토큰입니다.");
         }
         return false;
@@ -88,7 +92,6 @@ public class JwtUtil {
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
-
 
     // 상태 코드 반환하기
     public void status(int statusCode, String message, HttpServletResponse response) throws IOException {
@@ -104,5 +107,4 @@ public class JwtUtil {
         writer.write(jsonResponse);
         writer.flush();
     }
-
 }

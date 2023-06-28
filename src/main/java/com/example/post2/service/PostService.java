@@ -10,6 +10,7 @@ import com.example.post2.repository.CommentRepository;
 import com.example.post2.repository.PostRepository;
 import com.example.post2.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+@Slf4j
 @Service
 public class PostService {
 
@@ -67,6 +69,7 @@ public class PostService {
             return postResponseDto;
         } else {
             try {
+                log.error("게시글 작성자만 수정할 수 있습니다.");
                 status(400, "작성자만 삭제/수정할 수 있습니다.", res);
                 return null;
             } catch (IOException e) {
@@ -88,6 +91,7 @@ public class PostService {
             return statusResponseDto;
         } else {
             StatusResponseDto statusResponseDto = new StatusResponseDto();
+            log.error("게시글 작성자만 수정할 수 있습니다.");
             statusResponseDto.setMessage("작성자만 삭제/수정할 수 있습니다.");
             statusResponseDto.setStatusCode(400);
             return statusResponseDto;
@@ -103,7 +107,7 @@ public class PostService {
     // 상태 코드 반환하기
     public void status(int statusCode, String message, HttpServletResponse response) throws IOException {
         // 응답 데이터를 JSON 형식으로 생성
-        String jsonResponse = "{\"status\": " + statusCode + ", \"message\": \"" + message + "\"}";
+        String jsonResponse = "{\"statusCode\": " + statusCode + ", \"message\": \"" + message + "\"}";
 
         // Content-Type 및 문자 인코딩 설정
         response.setContentType("application/json");
