@@ -5,6 +5,7 @@ import com.example.post2.dto.PostResponseDto;
 import com.example.post2.dto.StatusResponseDto;
 import com.example.post2.security.UserDetailsImpl;
 import com.example.post2.service.PostService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,8 +41,9 @@ public class PostController {
     }
 
     @PutMapping("/post/{id}")
-    public PostResponseDto updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.updatePost(id, requestDto, userDetails.getUser());
+    public PostResponseDto updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto,
+                                      @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse res) {
+        return postService.updatePost(id, requestDto, userDetails.getUser(), res);
     }
 
     @DeleteMapping("/post/{id}")

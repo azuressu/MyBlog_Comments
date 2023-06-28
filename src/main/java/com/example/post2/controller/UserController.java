@@ -4,6 +4,7 @@ import com.example.post2.dto.SignupRequestDto;
 import com.example.post2.dto.StatusResponseDto;
 import com.example.post2.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping("/user/signup")
-    public StatusResponseDto signup(HttpServletResponse res, @RequestBody SignupRequestDto signupRequestDto) {
+    public StatusResponseDto signup(HttpServletResponse res, @Valid @RequestBody SignupRequestDto signupRequestDto) {
         return userService.signup(res, signupRequestDto);
     }
     /* sign up 할 때, HttpservletResponse res, (res.setStatus), SignupRequestDto 를 매개변수로

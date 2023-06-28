@@ -10,6 +10,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -30,6 +31,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        if (!request.getMethod().equals(HttpMethod.POST.name())) { // POST가 아닌 메소드는 걸러내기
+            try {
+                status(400, "Http Method Error", response);
+                return null;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         try {
             // LoginRequestDto 사용
             LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
@@ -38,15 +47,21 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                     new UsernamePasswordAuthenticationToken(
                             requestDto.getUsername(),
                             requestDto.getPassword()
-                            /*,null*/
+                            ,null
                     )
             );
         } catch (IOException e) {
-            log.error(e.getMessage());
+            try {
+                status(400, "회원을 찾을 수 없습니다.", response);
+                log.error("회원을 찾을 수 없습니다.");
+                return null;
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
 //            throw new RuntimeException(e.getMessage());
-            throw new MyBlogException(MyBlogErrorCode.NOT_FOUND_USER, null);
+//            throw new MyBlogException(MyBlogErrorCode.NOT_FOUND_USER, null);
         }
-    } // attemptAuthentication
+    } // attemptAuthentication()
 
     @Override
     public void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
@@ -63,8 +78,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
         response.setStatus(400);
-//        status(400, "회원을 찾을 수 없습니다", response);
-        throw new MyBlogException(MyBlogErrorCode.NOT_FOUND_USER, null);
+        status(400, "회원을 찾을 수 없습니다.", response);
+        log.error("400, 회원을 찾을 수 없습니다.");
+//        throw new MyBlogException(MyBlogErrorCode.NOT_FOUND_USER, null);
     }
 
     // 상태 코드 반환하기

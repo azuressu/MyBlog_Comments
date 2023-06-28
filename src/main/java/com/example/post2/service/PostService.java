@@ -9,10 +9,13 @@ import com.example.post2.entity.User;
 import com.example.post2.repository.CommentRepository;
 import com.example.post2.repository.PostRepository;
 import com.example.post2.security.UserDetailsImpl;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 @Service
@@ -54,16 +57,21 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
+    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user, HttpServletResponse res){
         Post post = findPost(id);
         // 해당 게시글을 작성한 작성자 이거나, 권한이 ADMIN인 경우는 삭제 가능
         if (post.getUser().getUsername().equals(user.getUsername())
-                || user.getRole().getAuthority().equals("ADMIN")) {
+                || user.getRole().getAuthority().equals("ROLE_ADMIN")) {
             post.update(requestDto);
             PostResponseDto postResponseDto = new PostResponseDto(post);
             return postResponseDto;
         } else {
-            return null;
+            try {
+                status(400, "작성자만 삭제/수정할 수 있습니다.", res);
+                return null;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -71,15 +79,18 @@ public class PostService {
         Post post = findPost(id);
         // 해당 게시글을 작성한 작성자 이거나, 권한이 ADMIN인 경우는 삭제 가능
         if (user.getUsername().equals(post.getUser().getUsername())
-                || user.getRole().getAuthority().equals("ADMIN")) {
+                || user.getRole().getAuthority().equals("ROLE_ADMIN")) {
             postRepository.delete(post);
 
             StatusResponseDto statusResponseDto = new StatusResponseDto();
-            statusResponseDto.setMsg("게시글 삭제 성공");
+            statusResponseDto.setMessage("게시글 삭제 성공");
             statusResponseDto.setStatusCode(200);
             return statusResponseDto;
         } else {
-            return null;
+            StatusResponseDto statusResponseDto = new StatusResponseDto();
+            statusResponseDto.setMessage("작성자만 삭제/수정할 수 있습니다.");
+            statusResponseDto.setStatusCode(400);
+            return statusResponseDto;
         }
     }
 
@@ -87,6 +98,21 @@ public class PostService {
     private Post findPost(Long id) {
         return postRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("선택한 게시글은 존재하지 않습니다."));
+    }
+
+    // 상태 코드 반환하기
+    public void status(int statusCode, String message, HttpServletResponse response) throws IOException {
+        // 응답 데이터를 JSON 형식으로 생성
+        String jsonResponse = "{\"status\": " + statusCode + ", \"message\": \"" + message + "\"}";
+
+        // Content-Type 및 문자 인코딩 설정
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        // PrintWriter를 사용하여 응답 데이터 전송
+        PrintWriter writer = response.getWriter();
+        writer.write(jsonResponse);
+        writer.flush();
     }
 
 }

@@ -27,6 +27,7 @@ public class PostResponseDto {
         this.modifyTime = post.getModifyTime();
 
         // post에 저장된 commentList Comment들을 하나씩 저장해준다
+        // 날짜 거꾸로를 출력하고 싶어서, 거꾸로 리스트에 담아준다
         if (post.getCommentList().size() > 0) {
             for (int i=post.getCommentList().size()-1; i>=0; i--) {
                 this.commentList.add(new CommentResponseDto(post.getCommentList().get(i)));

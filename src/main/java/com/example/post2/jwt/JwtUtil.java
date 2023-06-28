@@ -5,11 +5,14 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -65,7 +68,7 @@ public class JwtUtil {
     }
 
     // Token 검증
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token, HttpServletResponse response) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
@@ -84,6 +87,22 @@ public class JwtUtil {
     // Token 에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    }
+
+
+    // 상태 코드 반환하기
+    public void status(int statusCode, String message, HttpServletResponse response) throws IOException {
+        // 응답 데이터를 JSON 형식으로 생성
+        String jsonResponse = "{\"status\": " + statusCode + ", \"message\": \"" + message + "\"}";
+
+        // Content-Type 및 문자 인코딩 설정
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        // PrintWriter를 사용하여 응답 데이터 전송
+        PrintWriter writer = response.getWriter();
+        writer.write(jsonResponse);
+        writer.flush();
     }
 
 }
