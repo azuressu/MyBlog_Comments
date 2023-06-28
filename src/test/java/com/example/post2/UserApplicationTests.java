@@ -5,14 +5,18 @@ import com.example.post2.entity.User;
 import com.example.post2.entity.UserRoleEnum;
 import com.example.post2.repository.UserRepository;
 import com.example.post2.service.UserService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @SpringBootTest
@@ -25,6 +29,18 @@ public class UserApplicationTests {
 
     @Autowired
     UserService userService;
+
+    @Test
+    @DisplayName("사용자이름, 비밀번호 pattern 확인")
+    void test() {
+        @Valid SignupRequestDto signupRequestDto = new SignupRequestDto();
+
+        signupRequestDto.setUsername("a");
+        signupRequestDto.setPassword("aa");
+
+        System.out.println(signupRequestDto.getUsername());
+        System.out.println(signupRequestDto.getPassword());
+    }
 
     @Test
     @DisplayName("Admin 회원가입")
